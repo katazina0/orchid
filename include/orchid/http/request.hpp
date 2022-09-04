@@ -1,28 +1,26 @@
 #pragma once
 
-#include <orchid/http/util.hpp>
-#include <orchid/net/net_ssl.hpp>
 #include <map>
 
-namespace orchid
+#include <orchid/net/socket.hpp>
+#include <orchid/http/util.hpp>
+
+namespace orchid::http
 {
-    namespace http
+    class Request
     {
-        class Request
-        {
 
-        public:
-            Request() = default;
-            Request(orchid::Socket& socket);
+    public:
+        Request() = default;
+        Request(Socket& socket);
 
-            std::string method = "GET";
-            std::string endpoint = "/";
-            std::string protocol = "HTTP/1.1";
-            std::map<std::string, std::string> headers;
-            std::string body;
+        std::string method = "GET";
+        std::string endpoint = "/";
+        std::string protocol = "HTTP/1.1";
+        Headers headers;
+        std::string body;
 
-            orchid::Buffer serialize();
+        Buffer serialize();
 
-        };
-    }
+    };
 }

@@ -1,20 +1,17 @@
 #include <iostream>
 #include <orchid/http/server.hpp>
 
-orchid::http::Server server;
+using namespace orchid;
 
-void onRequestReceived(orchid::Socket socket, orchid::http::Request request)
+http::Server server;
+
+http::Response onExampleRequest(Socket& client, http::Request&& request)
 {
-    std::cout << request.endpoint << "\n";
-
-    if (request.endpoint == "/")
-        server.respondFile(socket, "/index.html");
-    else
-        server.respondFile(socket, request.endpoint);
-}   
+    return http::Response(http::CODE::OK);
+}
 
 int main()
 {
-    server.onRequestReceived = onRequestReceived;
+    server.registerEndpoint("/get/example", onExampleRequest);
     server.run();
 }

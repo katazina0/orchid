@@ -2,21 +2,29 @@
 
 void orchid::http::Server::run()
 {
-    orchid::Socket server;
+    Socket server;
     server.bind(port);
     server.listen();
 
     while (true)
     {
-        orchid::Socket& client = *new orchid::Socket(server.accept());
+        Socket& client = *new Socket(server.accept());
         std::jthread([&]
         {
             try
             {
                 while (true)
                 {
-                    if (onRequestReceived != nullptr)
-                        onRequestReceived(client, orchid::http::Request(client));
+                    auto request = Request(client);
+
+                    if (responseRegistry.contains(request.endpoint))
+                    {
+                        respond(client, responseRegistry[request.endpoint](client, std::forward<Request>(request)));
+                    }
+                    else
+                    {
+                        respond(client, Response(request.endpoint));
+                    }
                 }
             }
             catch (...) 
@@ -27,33 +35,13 @@ void orchid::http::Server::run()
     }
 }
 
-void orchid::http::Server::respond(orchid::Socket& socket, orchid::http::Response&& response)
+void orchid::http::Server::respond(Socket& client, Response&& response)
 {
     auto serialized = response.serialize();
-    socket.write(serialized);
+    client.write(serialized);
 }
 
-void orchid::http::Server::respondFile(orchid::Socket& socket, const std::string& filename)
+void orchid::http::Server::registerEndpoint(const std::string& endpoint, std::function<Response(Socket&, Request&&)> function)
 {
-    auto path = std::filesystem::canonical("/proc/self/exe").parent_path().append(filename.substr(1));
-    FILE* file = fopen(path.c_str(), "rb");
-    if (file == nullptr)
-    {
-        respond(socket, orchid::http::Response(CODE::NOT_FOUND));
-    }
-    else
-    {
-        fseek(file, 0, SEEK_END);
-        std::size_t size = ftell(file);
-        fseek(file, 0, SEEK_SET);
-        
-        orchid::http::Response response(CODE::OK);
-        response.body.resize(size);
-
-        fread(response.body.data(), size, 1, file);
-        fclose(file);
-
-        response.headers["content-type"] = MIME[path.extension().string().substr(1)];
-        respond(socket, std::forward<Response>(response));
-    }
+    responseRegistry[endpoint] = function;
 }

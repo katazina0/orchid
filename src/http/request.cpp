@@ -18,15 +18,25 @@ orchid::http::Request::Request(orchid::Socket& socket)
 
         auto div = header.find(':');
         if (div == std::string::npos)
+        {
             break;
+        }
 
         auto key = header.substr(0, div);
-        //lowercase
         headers[key] = header.substr(div + 2);
     }
 
-    if (method == "GET")
+    if (method == "GET" || method == "DELETE")
+    {
         return;
+    }
 
-    
+    if (headers.contains("content-length"))
+    {
+        body = socket.read(std::stoul(headers["content-length"]));
+    }
+    else
+    {
+        throw std::runtime_error("ill-formed request");
+    }
 }

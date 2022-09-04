@@ -1,29 +1,29 @@
 #pragma once
 
-#include <orchid/http/util.hpp>
-#include <orchid/net/net_ssl.hpp>
 #include <map>
+#include <filesystem>
 
-namespace orchid
+#include <orchid/net/socket.hpp>
+#include <orchid/http/util.hpp>
+
+namespace orchid::http
 {
-    namespace http
+    class Response
     {
-        class Response
-        {
 
-        public:
-            Response() = default;
-            Response(orchid::Socket& socket);
-            Response(CODE code);
+    public:
+        Response() = default;
+        Response(Socket& socket);
+        Response(const std::string& filename);
+        Response(CODE code);
 
-            std::string protocol = "HTTP/1.1";
-            std::string code = "200";
-            std::string status = "OK";
-            std::map<std::string, std::string> headers;
-            std::string body;
+        std::string protocol = "HTTP/1.1";
+        CODE code = CODE::OK;
+        std::string status = STATUS[CODE::OK];
+        Headers headers;
+        std::string body;
 
-            orchid::Buffer serialize();
+        Buffer serialize();
 
-        };
-    }
+    };
 }

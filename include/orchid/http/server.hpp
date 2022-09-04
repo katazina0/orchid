@@ -6,32 +6,29 @@
 #include <string>
 #include <thread>
 
-#ifdef __linux__
-    #include <orchid/net/net_unix.hpp>
-#elif WIN32
-    #include <orchid/net/net_windows.hpp>
-#endif
-
+#include <orchid/net/socket.hpp>
 #include <orchid/http/util.hpp>
 #include <orchid/http/response.hpp>
 #include <orchid/http/request.hpp>
 
-namespace orchid
+namespace orchid::http
 {
-    namespace http
+    class Server
     {
-        class Server
+
+    public:
+        uint16_t port = 8080;
+        std::map<std::string, std::function<Response(Socket&, Request&&)>> responseRegistry =
         {
-
-        public:
-            uint16_t port = 8080;
-
-            std::function<void(orchid::Socket, Request)> onRequestReceived = nullptr;
-
-            void run();
-            void respond(orchid::Socket& socket, Response&& response);
-            void respondFile(orchid::Socket& socket, const std::string& filename);
-
+            { "/", [](Socket&, Request&&)
+                {
+                    return Response("/index.html");
+                }
+            }
         };
-    }
+
+        void run();
+        void respond(Socket& client, Response&& response);
+        void registerEndpoint(const std::string& endpoint, std::function<Response(Socket&, Request&&)> function);
+    };
 }
