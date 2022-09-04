@@ -30,6 +30,11 @@ void orchid::Buffer::insert(uint8_t* data, std::size_t length)
     _buffer.insert(_buffer.end(), data, data + length);
 }
 
+void orchid::Buffer::insert(const std::string& string)
+{
+    _buffer.insert(_buffer.end(), string.begin(), string.end());
+}
+
 void orchid::Buffer::push(uint8_t value)
 {
     _buffer.push_back(value);

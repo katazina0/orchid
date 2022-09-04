@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <string>
+#include <stdexcept>
 
 #include <orchid/net/buffer.hpp>
 
@@ -27,7 +28,7 @@ namespace orchid
         int connect(const std::string& hostname);
         int listen(int backlog = 128);
 
-        template <typename T = orchid::Buffer>
+        template <typename T = std::string>
         T read(std::size_t length, int flags = 0)
         {
             if (length <= buffer.size())
@@ -42,7 +43,7 @@ namespace orchid
             if (result < 1)
             {
                 std::free(t_buffer);
-                std::__throw_runtime_error("socket disconnected");
+                throw std::runtime_error("socket disconnected");
             }
             buffer.insert(t_buffer, result);
             std::free(t_buffer);
@@ -51,7 +52,7 @@ namespace orchid
             return r_buffer;
         }
 
-        template <typename T = orchid::Buffer>
+        template <typename T = std::string>
         T read_until(char ch, int flags = 0)
         {
             while (true)
@@ -69,7 +70,7 @@ namespace orchid
                 if (result < 1)
                 {
                     std::free(t_buffer);
-                    std::__throw_runtime_error("socket disconnected");
+                    throw std::runtime_error("socket disconnected");
                 }
                 buffer.insert(t_buffer, result);
                 std::free(t_buffer);

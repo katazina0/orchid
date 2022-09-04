@@ -20,6 +20,7 @@ namespace orchid
         std::size_t size();
         uint8_t* data();
         void insert(uint8_t* data, std::size_t length);
+        void insert(const std::string& string);
         void push(uint8_t value);
         uint8_t* begin();
         uint8_t* end();
