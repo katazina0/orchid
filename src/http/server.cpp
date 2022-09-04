@@ -2,12 +2,20 @@
 
 void orchid::HTTPServer::run()
 {
-    orchid::Socket socket;
-    socket.bind(this->getPort());
-    socket.listen();
+    orchid::Socket server;
+    server.bind(port);
+    server.listen();
 
     while (true)
     {
-        int client = socket.accept();
+        orchid::Socket client = server.accept();
+
+        if (onRequestReceived != nullptr)
+            onRequestReceived(client, orchid::HTTPRequest(client));
     }
+}
+
+void orchid::HTTPServer::respondTo(const orchid::Socket& socket, const orchid::HTTPResponse& response)
+{
+    
 }
