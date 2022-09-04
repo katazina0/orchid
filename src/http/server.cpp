@@ -35,7 +35,7 @@ void orchid::http::Server::respond(orchid::Socket& socket, orchid::http::Respons
 
 void orchid::http::Server::respondFile(orchid::Socket& socket, const std::string& filename)
 {
-    auto path = std::filesystem::current_path().append(filename.substr(1));
+    auto path = std::filesystem::canonical("/proc/self/exe").parent_path().append(filename.substr(1));
     FILE* file = fopen(path.c_str(), "rb");
     if (file == nullptr)
     {
