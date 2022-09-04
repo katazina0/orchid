@@ -10,7 +10,7 @@ namespace orchid
     {
 
     private:
-        std::vector<uint8_t> _buffer;
+        std::vector<uint8_t> buffer;
 
     public:
         Buffer() = default;

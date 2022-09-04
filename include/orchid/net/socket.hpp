@@ -2,6 +2,7 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include <algorithm>
 #include <string>
@@ -30,6 +31,8 @@ namespace orchid
         std::string read(std::size_t length, int flags = 0);
         std::string read_until(char ch, int flags = 0);
         int write(Buffer& buffer, int flags = 0);
+
+        std::string getAddress();
 
     };
 }

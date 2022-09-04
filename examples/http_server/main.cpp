@@ -7,6 +7,7 @@ http::Server server;
 
 http::Response onExampleRequest(Socket& client, http::Request&& request)
 {
+    std::cout << client.getAddress() << " " << request.endpoint << "\n";
     return http::Response(http::CODE::OK);
 }
 

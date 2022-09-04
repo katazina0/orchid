@@ -2,50 +2,49 @@
 
 orchid::Buffer::Buffer(uint8_t* begin, uint8_t* end)
 {
-    _buffer.insert(_buffer.begin(), begin, end);
+    buffer.insert(buffer.begin(), begin, end);
 }
 
 void orchid::Buffer::consume(std::size_t length)
 {
-    if (_buffer.size() < length)
+    if (buffer.size() < length)
     {
         std::__throw_runtime_error("cannot consume more than the length of the buffer");
     }
-
-    _buffer.erase(_buffer.begin(), _buffer.begin() + length);
+    buffer.erase(buffer.begin(), buffer.begin() + length);
 }
 
 uint8_t* orchid::Buffer::data()
 {
-    return _buffer.data();
+    return buffer.data();
 }
 
 std::size_t orchid::Buffer::size()
 {
-    return _buffer.size();
+    return buffer.size();
 }
 
 void orchid::Buffer::insert(uint8_t* data, std::size_t length)
 {
-    _buffer.insert(_buffer.end(), data, data + length);
+    buffer.insert(buffer.end(), data, data + length);
 }
 
 void orchid::Buffer::insert(const std::string& string)
 {
-    _buffer.insert(_buffer.end(), string.begin(), string.end());
+    buffer.insert(buffer.end(), string.begin(), string.end());
 }
 
 void orchid::Buffer::push(uint8_t value)
 {
-    _buffer.push_back(value);
+    buffer.push_back(value);
 }
 
 uint8_t* orchid::Buffer::begin()
 {
-    return &*_buffer.begin();
+    return &*buffer.begin();
 }
 
 uint8_t* orchid::Buffer::end()
 {
-    return &*_buffer.end();
+    return &*buffer.end();
 }

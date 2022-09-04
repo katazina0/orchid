@@ -93,3 +93,11 @@ int orchid::Socket::write(orchid::Buffer& data, int flags)
 {
     return ::send(fd, data.data(), data.size(), flags);
 }
+
+std::string orchid::Socket::getAddress()
+{
+    sockaddr_in address = {};
+    socklen_t len;
+    auto result = ::getpeername(fd, (sockaddr*)(&address), &len);
+    return std::string(::inet_ntoa(address.sin_addr));
+}

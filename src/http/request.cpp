@@ -1,20 +1,20 @@
 #include <orchid/http/request.hpp>
 
-orchid::http::Request::Request(orchid::Socket& socket)
+orchid::http::Request::Request(Socket& client)
 {
-    method = socket.read_until(' ');
-    socket.read(1);
+    method = client.read_until(' ');
+    client.read(1);
 
-    endpoint = socket.read_until(' ');
-    socket.read(1);
+    endpoint = client.read_until(' ');
+    client.read(1);
 
-    protocol = socket.read_until('\r');
-    socket.read(2);
+    protocol = client.read_until('\r');
+    client.read(2);
 
     while (true)
     {
-        auto header = socket.read_until('\r');
-        socket.read(2);
+        auto header = client.read_until('\r');
+        client.read(2);
 
         auto div = header.find(':');
         if (div == std::string::npos)
@@ -33,7 +33,7 @@ orchid::http::Request::Request(orchid::Socket& socket)
 
     if (headers.contains("content-length"))
     {
-        body = socket.read(std::stoul(headers["content-length"]));
+        body = client.read(std::stoul(headers["content-length"]));
     }
     else
     {
