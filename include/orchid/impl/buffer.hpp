@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include <deque>
+#include <vector>
+#include <string>
 
 namespace orchid
 {
@@ -9,10 +10,12 @@ namespace orchid
     {
 
     private:
-        std::deque<std::uint8_t> _buffer;
+        std::vector<uint8_t> _buffer;
 
     public:
         void consume(std::size_t length);
-        
+        std::size_t size();
+        uint8_t* data();
+        void insert(uint8_t* data, std::size_t length);
     };
 }

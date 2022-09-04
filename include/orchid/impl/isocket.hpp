@@ -1,18 +1,22 @@
 #pragma once
 
-#include "orchid/impl/buffer.hpp"
+#include <orchid/impl/buffer.hpp>
 
 namespace orchid
 {
     class ISocket
     {
-        virtual orchid::Buffer recv() = 0;
-        virtual orchid::Buffer peek() = 0;
-        virtual void send() = 0;
-        virtual void close() = 0;
-        virtual void listen() = 0;
-        virtual void bind() = 0;
-        virtual void accept() = 0;
-        virtual void connect() = 0;
+
+    public:
+        int fd = 0;
+        orchid::Buffer buffer = orchid::Buffer();
+
+        virtual int accept() = 0;
+        virtual int bind(uint16_t port) = 0;
+        virtual int close() = 0;
+        virtual int connect(const std::string& hostname) = 0;
+        virtual int listen(int backlog = 128) = 0;
+        virtual int read(std::size_t length, int flags = 0) = 0;
+        virtual int write(orchid::Buffer& buffer, int flags = 0) = 0;
     };
 }

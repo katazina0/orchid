@@ -1,12 +1,23 @@
 #pragma once
 
 #ifdef __linux__
-    #include "orchid/impl/unix_socket.hpp"
+    #include <orchid/impl/net_unix.hpp>
 #elif WIN32
-    #include "orchid/impl/win_socket.hpp"
+    #include <orchid/impl/net_windows.hpp>
 #endif
 
-class HTTPServer
+namespace orchid
 {
-    void run();
-};
+    class HTTPServer
+    {
+
+    private:
+        uint16_t _port = 8080;
+
+    public:
+        void run();
+
+        uint16_t getPort();
+        void setPort(uint16_t port);
+    };
+}
