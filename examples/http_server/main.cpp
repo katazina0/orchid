@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include <orchid/http/server.hpp>
 
 orchid::http::Server server;

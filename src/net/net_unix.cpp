@@ -33,6 +33,7 @@ int orchid::Socket::close()
 
 int orchid::Socket::connect(const std::string& hostname)
 {
+    hostname.substr(0);
     return ::connect(fd, nullptr, sizeof(sockaddr));
 }
 
