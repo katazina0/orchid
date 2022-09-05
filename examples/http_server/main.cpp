@@ -10,9 +10,7 @@ http::Server server;
 http::Response onExampleRequest(Socket& client, http::Request&& request)
 {
     std::cout << client.getAddress() << " " << request.endpoint << "\n";
-
-    auto response = http::Response();
-    return response;
+    return http::Response();
 }
 
 int main()
