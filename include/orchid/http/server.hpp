@@ -29,6 +29,6 @@ namespace orchid::http
 
         void run();
         void respond(Socket& client, Response&& response);
-        void registerEndpoint(const std::string& endpoint, std::function<Response(Socket&, Request&&)> function);
+        void bindEndpoint(const std::string& endpoint, std::function<Response(Socket&, Request&&)> function);
     };
 }

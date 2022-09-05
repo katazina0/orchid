@@ -1,5 +1,7 @@
 #include <iostream>
+
 #include <orchid/http/server.hpp>
+#include <orchid/http/client.hpp>
 
 using namespace orchid;
 
@@ -8,11 +10,13 @@ http::Server server;
 http::Response onExampleRequest(Socket& client, http::Request&& request)
 {
     std::cout << client.getAddress() << " " << request.endpoint << "\n";
-    return http::Response(http::CODE::OK);
+
+    auto response = http::Response();
+    return response;
 }
 
 int main()
 {
-    server.registerEndpoint("/get/example", onExampleRequest);
+    server.bindEndpoint("/example", onExampleRequest);
     server.run();
 }

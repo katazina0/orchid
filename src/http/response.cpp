@@ -1,34 +1,93 @@
 #include <orchid/http/response.hpp>
 
+orchid::http::Response::Response(Socket& socket)
+{
+    protocol = socket.read_until(' ');
+    socket.read(1);
+    code = static_cast<CODE>(std::stoul(socket.read_until(' ')));
+    socket.read(1);
+    status = socket.read_until('\r');
+    socket.read(2);
+
+    while (true)
+    {
+        auto header = socket.read_until('\r');
+        socket.read(2);
+
+        auto div = header.find(':');
+        if (div == std::string::npos)
+        {
+            break;
+        }
+
+        auto key = header.substr(0, div);
+        to_lowercase(key);
+        headers[key] = header.substr(div + 2);
+    }
+
+    if (headers.contains("content-length"))
+    {
+        uint length = std::stoul(headers["content-length"]);
+        if (length == 0)
+        {
+            return;
+        }
+        body = socket.read(length);
+    }
+    else
+    {
+        while (true)
+        {
+            auto chunk_size = socket.read_until('\r');
+            socket.read(2);
+
+            uint size = 0;
+            std::stringstream stream;
+            for (uint32_t i = 0; i < chunk_size.size(); i++)
+            {
+                stream << chunk_size[i];
+            }
+            stream >> std::hex >> size;
+            if (size == 0)
+            {
+                socket.read(2);
+                break;
+            }
+            auto chunk = socket.read(size);
+            body.insert(body.end(), chunk.begin(), chunk.end());
+            socket.read(2);
+        }
+    }
+}
+
 orchid::Buffer orchid::http::Response::serialize()
 {
     headers["content-length"] = std::to_string(body.size());
-
-    Buffer buffer;
-
-    buffer.insert(protocol);
-    buffer.push(' ');
-    buffer.insert(std::to_string(static_cast<int>(code)));
-    buffer.push(' ');
-    buffer.insert(status);
-
-    buffer.push('\r');
-    buffer.push('\n');
-
-    for (auto& header : headers)
+    if (!body.empty() && !headers.contains("content-type"))
     {
-        buffer.insert(header.first);
-        buffer.push(':');
-        buffer.push(' ');
-        buffer.insert(header.second);
-        buffer.push('\r');
-        buffer.push('\n');
+        headers["content-type"] = "application/octet-stream";
     }
 
-    buffer.push('\r');
-    buffer.push('\n');
-    buffer.insert(body);
-
+    Buffer buffer;
+    buffer.append(protocol);
+    buffer.append(' ');
+    buffer.append(std::to_string(static_cast<int>(code)));
+    buffer.append(' ');
+    buffer.append(status);
+    buffer.append('\r');
+    buffer.append('\n');
+    for (auto& header : headers)
+    {
+        buffer.append(header.first);
+        buffer.append(':');
+        buffer.append(' ');
+        buffer.append(header.second);
+        buffer.append('\r');
+        buffer.append('\n');
+    }
+    buffer.append('\r');
+    buffer.append('\n');
+    buffer.append(body);
     return buffer;
 }
 

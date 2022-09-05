@@ -24,17 +24,17 @@ std::size_t orchid::Buffer::size()
     return buffer.size();
 }
 
-void orchid::Buffer::insert(uint8_t* data, std::size_t length)
+void orchid::Buffer::append(uint8_t* data, std::size_t length)
 {
     buffer.insert(buffer.end(), data, data + length);
 }
 
-void orchid::Buffer::insert(const std::string& string)
+void orchid::Buffer::append(const std::string& string)
 {
     buffer.insert(buffer.end(), string.begin(), string.end());
 }
 
-void orchid::Buffer::push(uint8_t value)
+void orchid::Buffer::append(uint8_t value)
 {
     buffer.push_back(value);
 }

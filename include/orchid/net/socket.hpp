@@ -3,12 +3,16 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
+#include <fcntl.h>
 
 #include <algorithm>
 #include <string>
 #include <stdexcept>
 
 #include <orchid/net/buffer.hpp>
+
+#include <openssl/ssl.h>
 
 namespace orchid
 {
@@ -17,22 +21,30 @@ namespace orchid
 
     public:
 
+        const SSL_METHOD* method = nullptr;
+        SSL_CTX* ctx = nullptr;
+        SSL* ssl = nullptr;
+
         int fd = 0;
         Buffer buffer;
+        std::string hostname;
 
-        Socket();
-        Socket(int fd);
+        Socket(bool ssl = true);
+        Socket(int fd, bool ssl = true);
 
         Socket accept();
         int bind(uint16_t port);
+        int listen(int backlog = 128);
+
         int close();
         int connect(const std::string& hostname);
-        int listen(int backlog = 128);
+        std::string getAddress();
+
         std::string read(std::size_t length, int flags = 0);
         std::string read_until(char ch, int flags = 0);
-        int write(Buffer& buffer, int flags = 0);
 
-        std::string getAddress();
+        int write(Buffer& buffer, int flags = 0);
+        int write(const std::string& data, int flags = 0);
 
     };
 }

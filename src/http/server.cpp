@@ -2,7 +2,7 @@
 
 void orchid::http::Server::run()
 {
-    Socket server;
+    Socket server = Socket(false);
     server.bind(port);
     server.listen();
 
@@ -41,7 +41,7 @@ void orchid::http::Server::respond(Socket& client, Response&& response)
     client.write(serialized);
 }
 
-void orchid::http::Server::registerEndpoint(const std::string& endpoint, std::function<Response(Socket&, Request&&)> function)
+void orchid::http::Server::bindEndpoint(const std::string& endpoint, std::function<Response(Socket&, Request&&)> function)
 {
     responseRegistry[endpoint] = function;
 }
