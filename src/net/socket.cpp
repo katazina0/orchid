@@ -10,6 +10,7 @@ orchid::Socket::Socket(bool ssl)
     this->method = TLS_client_method();
     this->ctx = SSL_CTX_new(method);
     this->ssl = SSL_new(ctx);
+    SSL_set_fd(this->ssl, fd);
 }
 
 orchid::Socket::Socket(int fd, bool ssl)
@@ -22,11 +23,18 @@ orchid::Socket::Socket(int fd, bool ssl)
     this->method = TLS_client_method();
     this->ctx = SSL_CTX_new(method);
     this->ssl = SSL_new(ctx);
+    SSL_set_fd(this->ssl, fd);
 }
+
+#include <openssl/err.h>
 
 orchid::Socket orchid::Socket::accept()
 {
-    return orchid::Socket(::accept(fd, nullptr, nullptr), ssl);
+    auto client = orchid::Socket(::accept(fd, nullptr, nullptr), false);
+    client.ssl = SSL_new(ctx);
+    SSL_set_fd(client.ssl, client.fd);
+    SSL_accept(client.ssl);
+    return std::move(client);
 }
 
 int orchid::Socket::bind(uint16_t port)
@@ -40,9 +48,9 @@ int orchid::Socket::bind(uint16_t port)
     return ::bind(fd, (sockaddr*)(&address), sizeof(sockaddr));
 }
 
-int orchid::Socket::close()
+void orchid::Socket::close()
 {
-    return ::shutdown(fd, SHUT_RDWR);
+    ::shutdown(fd, SHUT_RDWR);
 
     if (ssl)
     {
@@ -157,7 +165,7 @@ std::string orchid::Socket::read_until(char ch, int flags)
     }
 }
 
-int orchid::Socket::write(orchid::Buffer& data, int flags)
+int orchid::Socket::write(orchid::Buffer&& data, int flags)
 {
     if (ssl)
     {

@@ -1,14 +1,27 @@
 #include <orchid/http/server.hpp>
 
+orchid::http::Server::Server(bool ssl)
+{
+    if (ssl)
+    {
+        socket.method = TLS_server_method();
+        socket.ctx = SSL_CTX_new(socket.method);
+        socket.ssl = SSL_new(socket.ctx);
+        SSL_CTX_use_certificate_chain_file(socket.ctx, "server.crt");
+        SSL_CTX_use_PrivateKey_file(socket.ctx, "server.key", SSL_FILETYPE_PEM);
+        SSL_set_verify(socket.ssl, SSL_VERIFY_NONE, nullptr);
+        SSL_set_cipher_list(socket.ssl, "HIGH:!aNULL:!kRSA:!PSK:!SRP:!MD5:!RC4");
+    }
+}
+
 void orchid::http::Server::run()
 {
-    Socket server = Socket(false);
-    server.bind(port);
-    server.listen();
+    socket.bind(port);
+    socket.listen();
 
     while (true)
     {
-        Socket& client = *new Socket(server.accept());
+        Socket& client = *new Socket(socket.accept());
         std::jthread([&]
         {
             try
@@ -16,10 +29,9 @@ void orchid::http::Server::run()
                 while (true)
                 {
                     auto request = Request(client);
-
-                    if (responseRegistry.contains(request.endpoint))
+                    if (endpointRegistry.contains(request.endpoint))
                     {
-                        respond(client, responseRegistry[request.endpoint](client, std::forward<Request>(request)));
+                        respond(client, endpointRegistry[request.endpoint](client, std::forward<Request>(request)));
                     }
                     else
                     {
@@ -29,6 +41,7 @@ void orchid::http::Server::run()
             }
             catch (...) 
             {
+                //SSL_free(client.ssl);
                 delete &client;
             }
         }).detach();
@@ -37,11 +50,10 @@ void orchid::http::Server::run()
 
 void orchid::http::Server::respond(Socket& client, Response&& response)
 {
-    auto serialized = response.serialize();
-    client.write(serialized);
+    client.write(response.serialize());
 }
 
 void orchid::http::Server::bindEndpoint(const std::string& endpoint, std::function<Response(Socket&, Request&&)> function)
 {
-    responseRegistry[endpoint] = function;
+    endpointRegistry[endpoint] = function;
 }

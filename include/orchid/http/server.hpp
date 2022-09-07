@@ -17,8 +17,9 @@ namespace orchid::http
     {
 
     public:
-        uint16_t port = 8080;
-        std::map<std::string, std::function<Response(Socket&, Request&&)>> responseRegistry =
+        Socket socket = Socket(false);
+        uint16_t port = 8081;
+        std::map<std::string, std::function<Response(Socket&, Request&&)>> endpointRegistry =
         {
             { "/", [](Socket&, Request&&)
                 {
@@ -27,8 +28,10 @@ namespace orchid::http
             }
         };
 
+        Server(bool ssl = true);
+
         void run();
-        void respond(Socket& client, Response&& response);
+        void respond(Socket& socket, Response&& response);
         void bindEndpoint(const std::string& endpoint, std::function<Response(Socket&, Request&&)> function);
     };
 }

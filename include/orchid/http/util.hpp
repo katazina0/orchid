@@ -40,8 +40,12 @@ namespace orchid::http
     inline std::string& to_lowercase(std::string& string)
     {
         for (auto& ch : string)
+        {
             if (ch > 64 && ch < 91)
+            {
                 ch += 32;
+            }
+        }
         return string;
     }
 
@@ -58,9 +62,13 @@ namespace orchid::http
             auto e_start = url.find('/', p_end + 3);
             hostname = url.substr(p_end + 3, e_start - p_end - 3);
             if (e_start == std::string::npos)
+            {
                 endpoint = "/";
+            }
             else
+            {
                 endpoint = url.substr(e_start);
+            }
         }
     };
 }

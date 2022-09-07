@@ -11,11 +11,11 @@ namespace orchid::http
     {
 
     public:
-        Client(const std::string& hostname);
-
         Socket socket;
 
-        Response request(Request& request);
-
+        Client();
+        Client(const std::string& hostname);
+        
+        Response request(Request&& request);
     };
 }
