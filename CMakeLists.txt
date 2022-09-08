@@ -3,18 +3,15 @@ include_directories(include/)
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -pthread")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-
-
 
 project(orchid)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ../lib)
     file(GLOB_RECURSE orchid_SRC include/*.hpp)
     add_library(orchid STATIC ${orchid_SRC})
     set_target_properties(orchid PROPERTIES LINKER_LANGUAGE CXX)
-
 
 project(orchid_example)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../build)
