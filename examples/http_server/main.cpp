@@ -11,6 +11,6 @@ http::Response onExampleRequest(Socket& client, http::Request&& request)
 
 int main()
 {
-    server.bindEndpoint("/example", onExampleRequest);
+    server.bindEndpoint("/ok", onExampleRequest);
     server.run();
 }
