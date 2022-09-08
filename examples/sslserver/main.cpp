@@ -6,7 +6,7 @@ using namespace orchid;
 
 http::Server server;
 
-http::Response onExampleRequest(Socket& client, http::Request&& request)
+http::Response onExampleRequest(Socket&, http::Request&&)
 {
     return http::Response();
 }
