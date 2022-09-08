@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.18)
 include_directories(include/)
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
