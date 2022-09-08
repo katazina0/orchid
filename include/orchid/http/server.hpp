@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <thread>
+#include <iostream>
 
 #include <orchid/net/socket.hpp>
 
@@ -52,8 +53,22 @@ namespace orchid::http
         void run(uint16_t port = 443)
         {
             this->port = port;
-            socket.bind(port);
+            bool err = socket.bind(port);
             socket.listen();
+
+            if (err)
+            {
+                if (port <= 1024)
+                {
+                    std::cerr << "port " << port << " might already be in use." << std::endl;
+                    std::cerr << "did you forget to run the server as root?" << std::endl;
+                }
+                else
+                {
+                    std::cerr << "port " << port << " is already in use." << std::endl;
+                }
+                std::exit(1);
+            }
 
             while (true)
             {

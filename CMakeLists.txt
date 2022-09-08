@@ -14,7 +14,7 @@ project(orchid)
     set_target_properties(orchid PROPERTIES LINKER_LANGUAGE CXX)
 
 project(orchid_example)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../build)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../out)
     add_executable(orchid_example examples/sslserver/main.cpp)
     set_target_properties(orchid_example PROPERTIES OUTPUT_NAME orchid)
     target_link_libraries(orchid_example orchid)
