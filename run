@@ -1,3 +1,4 @@
 #!/bin/bash
+./kill
 ./build
 sudo ./out/orchid.o > /dev/null &

@@ -13,7 +13,7 @@ http::Response onExampleRequest(Socket&, http::Request&&)
 
 int main(int argc, char** argv)
 {   
-    if (argc != 2)
+    if (argc != 3)
     {
         std::cerr << "usage: orchid [certificate chain file] [private key file]" << std::endl;
         std::exit(1);
