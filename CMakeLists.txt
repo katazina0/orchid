@@ -11,14 +11,14 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 project(orchid)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ../lib)
-    file(GLOB_RECURSE orchid_SRC src/*.cpp)
+    file(GLOB_RECURSE orchid_SRC include/*.hpp)
     add_library(orchid STATIC ${orchid_SRC})
-
+    set_target_properties(orchid PROPERTIES LINKER_LANGUAGE CXX)
 
 
 project(orchid_example)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../build)
-    add_executable(orchid_example examples/http_server/main.cpp)
+    add_executable(orchid_example lunaria/main.cpp)
     set_target_properties(orchid_example PROPERTIES OUTPUT_NAME orchid)
     target_link_libraries(orchid_example orchid)
     target_link_libraries(orchid_example ssl)

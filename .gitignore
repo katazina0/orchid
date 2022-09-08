@@ -1,6 +1,4 @@
 .out/
 .vscode/
 build/
-lib/
 lunaria/
-.gitignore
