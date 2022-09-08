@@ -1,7 +1,4 @@
-#include <iostream>
-
-#include <orchid/http/server.hpp>
-#include <orchid/http/client.hpp>
+#include <orchid/http.hpp>
 
 using namespace orchid;
 
@@ -9,27 +6,27 @@ http::Server server;
 
 http::Response onCORSRequest(Socket&, http::Request&& request)
 {
-    if (!request.formData.contains("url"))
+    if (!request.hasForm("url"))
     {
-        return http::Response(http::CODE::NOT_FOUND);
+        http::Response response;
+        response.setStatus(http::Status::NOT_FOUND);
+        return response;
     }
 
-    auto url = http::URL(request.formData["url"]);
-    request.headers["host"] = url.hostname;
-    request.headers["origin"] = url.hostname;
-    request.headers["referer"] = url.hostname;
-    request.endpoint = request.formData["url"];
+    auto url = http::URL(request.getForm("url"));
+    request.addHeader("host", url.hostname);
+    request.addHeader("origin", url.hostname);
+    request.addHeader("referer", url.hostname);
+    request.setEndpoint(request.getForm("url"));
 
     http::Client client(url.hostname);
     auto response = client.request(std::forward<http::Request>(request));
     
-    if (response.headers.contains("transfer-encoding"))
-    {
-        response.headers.erase("transfer-encoding");
-    }
-
-    response.headers["access-control-allow-origin"] = "*";
-    response.headers["content-length"] = std::to_string(response.body.size());
+    if (response.hasHeader("transfer-encoding"))
+        response.removeHeader("transfer-encoding");
+        
+    response.addHeader("access-control-allow-origin", "*");
+    response.addHeader("content-length", response.getBody().size());
     return response;
 }
 

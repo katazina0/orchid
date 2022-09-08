@@ -132,6 +132,11 @@ namespace orchid::http
         {
             return body.as<T>();
         }
+    
+        bool hasForm(const std::string& key)
+        {
+            return url.form.contains(key);
+        }
 
         template <typename T>
         void setBody(const T& body)

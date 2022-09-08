@@ -36,9 +36,17 @@ namespace orchid::http
                 socket.method = TLS_server_method();
                 socket.ctx = SSL_CTX_new(socket.method);
                 socket.ssl = SSL_new(socket.ctx);
-                SSL_CTX_use_certificate_chain_file(socket.ctx, "/etc/letsencrypt/live/kata.lol/fullchain.pem");
-                SSL_CTX_use_PrivateKey_file(socket.ctx, "/etc/letsencrypt/live/kata.lol/privkey.pem", SSL_FILETYPE_PEM);
             }
+        }
+
+        void setSSLCertificateChain(const std::string& certificateChain)
+        {
+            SSL_CTX_use_certificate_chain_file(socket.ctx, certificateChain.c_str());
+        }
+
+        void setSSLPrivateKey(const std::string& privateKey)
+        {
+            SSL_CTX_use_PrivateKey_file(socket.ctx, privateKey.c_str(), SSL_FILETYPE_PEM);
         }
 
         void run(uint16_t port = 443)

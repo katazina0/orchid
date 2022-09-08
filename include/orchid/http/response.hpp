@@ -134,6 +134,16 @@ namespace orchid::http
             return headers.get<T>(key);
         }
 
+        bool hasHeader(const std::string& key)
+        {
+            return headers.contains(key);
+        }
+
+        void removeHeader(const std::string& key)
+        {
+            headers.remove(key);
+        }
+
         void setCookie(const std::string& key, const std::string& value)
         {
             cookies.set(key, value);

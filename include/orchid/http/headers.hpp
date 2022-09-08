@@ -52,6 +52,11 @@ namespace orchid::http
             return base.contains(key);
         }
 
+        void remove(const std::string& key)
+        {
+            base.erase(key);
+        }
+
         std::string serialize()
         {
             std::string serialized;
