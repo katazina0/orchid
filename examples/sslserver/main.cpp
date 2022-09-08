@@ -21,8 +21,8 @@ int main(int argc, char** argv)
 
     try 
     {
-        server.setSSLCertificateChain(argv[0]);
-        server.setSSLPrivateKey(argv[1]);
+        server.setSSLCertificateChain(argv[1]);
+        server.setSSLPrivateKey(argv[2]);
     }
     catch (...)
     {
