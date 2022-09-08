@@ -31,6 +31,10 @@ orchid::Socket::Socket(int fd, bool ssl)
 orchid::Socket orchid::Socket::accept()
 {
     auto client = orchid::Socket(::accept(fd, nullptr, nullptr), false);
+
+    if (!ssl)
+        return;
+
     client.ssl = SSL_new(ctx);
     SSL_set_fd(client.ssl, client.fd);
     SSL_accept(client.ssl);

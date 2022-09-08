@@ -10,7 +10,6 @@ orchid::http::Server::Server(bool ssl)
         SSL_CTX_use_certificate_chain_file(socket.ctx, "server.crt");
         SSL_CTX_use_PrivateKey_file(socket.ctx, "server.key", SSL_FILETYPE_PEM);
         SSL_set_verify(socket.ssl, SSL_VERIFY_NONE, nullptr);
-        SSL_set_cipher_list(socket.ssl, "HIGH:!aNULL:!kRSA:!PSK:!SRP:!MD5:!RC4");
     }
 }
 
@@ -41,7 +40,7 @@ void orchid::http::Server::run()
             }
             catch (...) 
             {
-                //SSL_free(client.ssl);
+                SSL_free(client.ssl);
                 delete &client;
             }
         }).detach();
