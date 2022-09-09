@@ -12,12 +12,7 @@ namespace orchid::http
         {
             if (url[0] == '/')
             {
-                auto s_form = url.find('?');
-                if (s_form != std::string::npos)
-                {
-                    form = Form(url.substr(s_form));
-                }
-                endpoint = url.substr(0, s_form);
+                endpoint = url;
             }
             else
             {
@@ -25,6 +20,7 @@ namespace orchid::http
                 protocol = url.substr(0, p_end);
                 auto e_start = url.find('/', p_end + 3);
                 hostname = url.substr(p_end + 3, e_start - p_end - 3);
+                endpoint = url.substr(e_start);
             }
         }
 
@@ -32,7 +28,6 @@ namespace orchid::http
         std::string protocol;
         std::string hostname;
         std::string endpoint;
-        Form form;
 
         URL() = default;
 

@@ -26,7 +26,7 @@ namespace orchid::http
         {
             "text/html",
             "text/css",
-            "test/javascript",
+            "text/javascript",
             "application/octet-stream",
             "application/octet-stream",
             "application/json",

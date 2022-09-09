@@ -81,7 +81,7 @@ namespace orchid::http
                 }
                 else
                 {
-                    return {};
+                    throw InvalidRequestException();
                 }
             }
             else
@@ -92,7 +92,7 @@ namespace orchid::http
                 }
                 else
                 {
-                    return {};
+                    throw InvalidRequestException();
                 }
             }
         }

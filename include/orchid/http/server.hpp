@@ -53,10 +53,12 @@ namespace orchid::http
         void run(uint16_t port = 443)
         {
             this->port = port;
-            bool err = socket.bind(port);
-            socket.listen();
 
-            if (err)
+            try 
+            {
+                socket.bind(port);
+            }
+            catch (PortInUseException& ex)
             {
                 if (port <= 1024)
                 {
@@ -69,6 +71,8 @@ namespace orchid::http
                 }
                 std::exit(1);
             }
+
+            socket.listen();
 
             while (true)
             {
@@ -90,18 +94,18 @@ namespace orchid::http
                             }
                         }
                     }
-                    catch (SocketClosedException& exception)
+                    catch (SocketClosedException& ex)
                     {
                         delete &client;
                     }
-                    catch (InvalidRequestException& exception)
+                    catch (InvalidRequestException& ex)
                     {
                         Response response;
                         response.setStatus(Status::INTERNAL_SERVER_ERROR);
                         respond(client, std::forward<Response>(response));
                         delete &client;
                     }
-                    catch (InvalidArgumentException& exception)
+                    catch (InvalidArgumentException& ex)
                     {
                         Response response;
                         response.setStatus(Status::INTERNAL_SERVER_ERROR);

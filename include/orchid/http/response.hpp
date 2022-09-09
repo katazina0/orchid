@@ -71,7 +71,7 @@ namespace orchid::http
                 }
                 body = socket.read(length);
             }
-            else
+            else if (headers.contains("transfer-encoding"))
             {
                 while (true)
                 {
@@ -94,6 +94,12 @@ namespace orchid::http
                     body.append(chunk);
                     socket.read(2);
                 }
+            }
+
+            if (headers.contains("connection") && headers["connection"] == "close")
+            {
+                socket.connected = false;
+                socket.close();
             }
         }
 

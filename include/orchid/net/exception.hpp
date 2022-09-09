@@ -8,4 +8,9 @@ namespace orchid
     {
         
     };
+
+    class PortInUseException : std::exception
+    {
+
+    };
 }

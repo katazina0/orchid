@@ -11,7 +11,7 @@ namespace orchid::http
         std::string key;
         std::string value;
         std::string path;
-        bool sameSite;
+        bool sameSite = false;
         bool httpOnly = false;
         bool secure = false;
 
@@ -73,6 +73,11 @@ namespace orchid::http
         void add(const Cookie& cookie)
         {
             base.push_back(cookie);
+        }
+
+        bool empty()
+        {
+            return base.empty();
         }
 
         Cookie get(const std::string& key)

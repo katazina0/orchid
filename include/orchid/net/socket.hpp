@@ -30,58 +30,87 @@ namespace orchid
         std::string hostname;
         bool connected = false;
 
-        Socket(bool ssl = true)
+        Socket(bool useSSL = true)
         {
-            this->fd = ::socket(AF_INET, SOCK_STREAM, 0);
+            fd = ::socket(AF_INET, SOCK_STREAM, 0);
 
-            if (!ssl) 
+            if (!useSSL) 
             {
                 return;
             }
 
-            this->method = TLS_client_method();
-            this->ctx = SSL_CTX_new(method);
-            this->ssl = SSL_new(ctx);
-            SSL_set_fd(this->ssl, fd);
-        }
+            method = TLS_client_method();
+            ctx = SSL_CTX_new(method);
+            ssl = SSL_new(ctx);
+            SSL_set_fd(ssl, fd);
 
-        Socket(int fd, bool ssl = true)
-        {
-            this->fd = fd;
+            SSL_set_ciphersuites
+            (
+                ssl, 
+                "TLS_CHACHA20_POLY1305_SHA256"
+                ":TLS_AES_128_GCM_SHA256"
+                ":TLS_AES_256_GCM_SHA384"
+            );
 
-            if (!ssl) 
-            {
-                return;
-            }
+            SSL_set_cipher_list
+            (
+                ssl,
+                "ECDHE-ECDSA-CHACHA20-POLY1305"
+                ":ECDHE-RSA-CHACHA20-POLY1305"
+                ":ECDHE-ECDSA-AES128-GCM-SHA256"
+                ":ECDHE-RSA-AES128-GCM-SHA256"
+                ":ECDHE-ECDSA-AES256-GCM-SHA384"
+                ":ECDHE-RSA-AES256-GCM-SHA384"
+                ":ECDHE-ECDSA-AES128-SHA"
+                ":ECDHE-RSA-AES128-SHA"
+                ":ECDHE-ECDSA-AES256-SHA"
+                ":ECDHE-RSA-AES256-SHA"
+                ":AES128-GCM-SHA256"
+                ":AES256-GCM-SHA384"
+                ":AES128-SHA"
+                ":AES256-SHA"
+                ":DES-CBC3-SHA"
+            );
 
-            this->method = TLS_client_method();
-            this->ctx = SSL_CTX_new(method);
-            this->ssl = SSL_new(ctx);
-            SSL_set_fd(this->ssl, fd);
+            SSL_set1_sigalgs_list
+            (
+                ssl,
+                "ecdsa_secp256r1_sha256"
+                ":rsa_pss_rsae_sha256"
+                ":rsa_pkcs1_sha256"
+                ":ecdsa_secp384r1_sha384"
+                ":rsa_pss_rsae_sha384"
+                ":rsa_pkcs1_sha384"
+                ":rsa_pss_rsae_sha512"
+                ":rsa_pkcs1_sha512"
+                ":rsa_pkcs1_sha1"
+            );
         }
 
         ~Socket()
         {
             ::shutdown(fd, SHUT_RDWR);
             SSL_free(ssl);
+            ssl = nullptr;
         }
 
         Socket accept()
         {
-            auto client = Socket(::accept(fd, nullptr, nullptr), false);
+            Socket socket;
+            socket.fd = ::accept(fd, nullptr, nullptr);
 
             if (!ssl)
             {
-                return client;
+                return socket;
             }
 
-            client.ssl = SSL_new(ctx);
-            SSL_set_fd(client.ssl, client.fd);
-            SSL_accept(client.ssl);
-            return client;
+            socket.ssl = SSL_new(ctx);
+            SSL_set_fd(socket.ssl, socket.fd);
+            SSL_accept(socket.ssl);
+            return socket;
         }
 
-        int bind(uint16_t port)
+        void bind(uint16_t port)
         {
             const int reuse = 1;
             setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int));
@@ -89,18 +118,15 @@ namespace orchid
             sockaddr_in address = {};
             address.sin_family = AF_INET;
             address.sin_port = htons(port);
-            return ::bind(fd, (sockaddr*)(&address), sizeof(sockaddr));
+            if (::bind(fd, (sockaddr*)(&address), sizeof(sockaddr)))
+            {
+                throw PortInUseException();
+            }
         }
 
         void close()
         {
             ::shutdown(fd, SHUT_RDWR);
-
-            if (ssl)
-            {
-                SSL_CTX_free(ctx);
-                SSL_free(ssl);
-            }
         }
 
         int connect(const std::string& hostname)

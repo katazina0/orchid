@@ -22,6 +22,7 @@ namespace orchid::http
         Protocol::PROTOCOL protocol = Protocol::HTTP11;
         Method::METHOD method = Method::GET;
         URL url;
+        Form form;
         Headers headers;
         Cookies cookies;
         Body body;
@@ -33,7 +34,17 @@ namespace orchid::http
         {
             method = Method::parse(socket.read_until(' '));
             socket.read(1);
-            url = socket.read_until(' ');
+            auto fullUrl = socket.read_until(' ');
+            auto s_form = fullUrl.find('?');
+            if (s_form != std::string::npos)
+            {
+                form = Form(fullUrl.substr(s_form));
+                url = fullUrl.substr(0, s_form);
+            }
+            else
+            {
+                url = fullUrl;
+            }
             socket.read(1);
             protocol = Protocol::parse(socket.read_until('\r'));
             socket.read(2);
@@ -95,9 +106,19 @@ namespace orchid::http
             return headers.get<T>(key);
         }
 
+        void setHeaders(Headers&& headers)
+        {
+            this->headers = std::forward<Headers>(headers);
+        }
+
         void setCookie(const std::string& key, const std::string& value)
         {
             cookies.set(key, value);
+        }
+
+        void setCookies(Cookies&& cookies)
+        {
+            this->cookies = std::forward<Cookies>(cookies);
         }
 
         Cookie getCookie(const std::string& key)
@@ -118,13 +139,23 @@ namespace orchid::http
         template <typename T>
         void addForm(const std::string& key, const T& value)
         {
-            url.form.add(key, value);
+            form.add(key, value);
         }
 
         template <typename T = std::string>
         T getForm(const std::string& key)
         {
-            return url.form.get<T>(key);  
+            return form.get<T>(key);  
+        }
+
+        URL getURL()
+        {
+            return url;
+        }
+
+        void setURL(const URL& url)
+        {
+            this->url = url;
         }
 
         template <typename T = std::string>
@@ -133,9 +164,19 @@ namespace orchid::http
             return body.as<T>();
         }
     
+        void setMethod(Method::METHOD method)
+        {
+            this->method = method;
+        }
+
         bool hasForm(const std::string& key)
         {
-            return url.form.contains(key);
+            return form.contains(key);
+        }
+
+        void setBody(Body&& body)
+        {
+            this->body = std::forward<Body>(body);
         }
 
         template <typename T>
@@ -147,33 +188,42 @@ namespace orchid::http
         template <typename T = std::string>
         std::vector<T> getFormAll(const std::string& key)
         {
-            return url.form.values<T>(key);
+            return form.values<T>(key);
         }
 
         Buffer serialize()
         {
-            headers["content-length"] = std::to_string(body.size());
-            if (!body.empty() && !headers.contains("content-type"))
+            if (method != Method::GET)
             {
-                headers["content-type"] = "application/json";
+                headers["content-length"] = std::to_string(body.size());
+                if (!body.empty() && !headers.contains("content-type"))
+                {
+                    headers["content-type"] = "application/json";
+                }
             }
 
             Buffer buffer;
-            buffer.append("GET");
+            buffer.append(Method::string(method));
             buffer.append(' ');
             buffer.append(url.endpoint);
             buffer.append(' ');
-            buffer.append("HTTP/1.1");
+            buffer.append(Protocol::string(protocol));
             buffer.append('\r');
             buffer.append('\n');
             buffer.append(headers.serialize());
-            buffer.append("cookie: ");
-            buffer.append(cookies.serialize());
+            if (!cookies.empty())
+            {
+                buffer.append("cookie: ");
+                buffer.append(cookies.serialize());
+                buffer.append('\r');
+                buffer.append('\n');
+            }
             buffer.append('\r');
             buffer.append('\n');
-            buffer.append('\r');
-            buffer.append('\n');
-            buffer.append(body.as<std::string>());
+            if (method != Method::GET)
+            {
+                buffer.append(body.as<std::string>());
+            }
             return buffer;
         }
     };

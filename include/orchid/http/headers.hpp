@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <utility>
+#include <initializer_list>
 
 #include <orchid/exception.hpp>
 
@@ -17,6 +19,16 @@ namespace orchid::http
         std::map<std::string, std::string> base;
 
     public:
+        Headers() = default;
+
+        Headers(std::initializer_list<std::pair<std::string, std::string>> args)
+        {
+            for (auto& arg : args)
+            {
+                base[arg.first] = arg.second;
+            }
+        }
+
         template <typename T>
         void set(const std::string& key, const T& value)
         {
