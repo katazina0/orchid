@@ -19,7 +19,8 @@ namespace orchid::http
             "json",
             "png",
             "gif",
-            "webm"
+            "webm",
+            "txt"
         };
 
         inline static const std::vector<std::string> contentTypes
@@ -32,7 +33,8 @@ namespace orchid::http
             "application/json",
             "image/png",
             "image/gif",
-            "video/webm"
+            "video/webm",
+            "text/plain"
         };
 
     public:
@@ -46,18 +48,29 @@ namespace orchid::http
             JSON,
             PNG,
             GIF,
-            WEBM
+            WEBM,
+            TXT
         };
 
+    private:
+        Mime::MIME mime;
+
     public:
-        inline static std::string extension(MIME mime)
+        Mime() = default;
+
+        Mime(Mime::MIME mime)
         {
-            return extensions[(int)mime];
+            this->mime = mime;
         }
 
-        inline static std::string contentType(MIME mime)
+        inline static std::string extension(const Mime& mime)
         {
-            return contentTypes[(int)mime];
+            return extensions[(int)mime.mime];
+        }
+
+        inline static std::string contentType(const Mime& mime)
+        {
+            return contentTypes[(int)mime.mime];
         }
 
         inline static MIME parse(const std::string& mime)

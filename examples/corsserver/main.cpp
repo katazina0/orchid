@@ -8,8 +8,10 @@ http::Response onCORSRequest(Socket&, http::Request&& request)
 {
     if (!request.hasForm("url"))
     {
-        http::Response response;
-        response.setStatus(http::Status::NOT_FOUND);
+        http::Response response
+        (
+            http::Status::NOT_FOUND
+        );
         return response;
     }
 
@@ -19,14 +21,14 @@ http::Response onCORSRequest(Socket&, http::Request&& request)
     request.addHeader("referer", url.hostname);
     request.setEndpoint(request.getForm("url"));
 
-    http::Client client(url.hostname);
-    auto response = client.request(std::forward<http::Request>(request));
-    
+    auto response = http::REQUEST(std::forward<http::Request>(request));
+
     if (response.hasHeader("transfer-encoding"))
         response.removeHeader("transfer-encoding");
-        
+
     response.addHeader("access-control-allow-origin", "*");
     response.addHeader("content-length", response.getBody().size());
+
     return response;
 }
 

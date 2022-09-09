@@ -10,14 +10,15 @@ namespace orchid::http
     class Body
     {
         std::string body;
-        Mime::MIME mime = Mime::HTML;
+        Mime mime = Mime::JSON;
 
     public:
         Body() = default;
 
         template <typename T>
-        Body(const T& body)
+        Body(const T& body, const Mime& mime = Mime::JSON)
         {
+            this->mime = mime;
             if constexpr (std::is_array<T>::value)
             {
                 this->body = body;
@@ -59,14 +60,14 @@ namespace orchid::http
             return body.data();
         }
 
-        void setMime(Mime::MIME mime)
+        void setMime(const Mime& mime)
         {
             this->mime = mime;
         }
 
-        Mime::MIME getMime()
+        const Mime& getMime()
         {
-            return this->mime;
+            return mime;
         }
     };
 }

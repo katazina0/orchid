@@ -36,6 +36,7 @@ namespace orchid::http
             PATCH
         };
 
+    public:
         inline static std::string string(METHOD method)
         {
             return methods[(int)method];

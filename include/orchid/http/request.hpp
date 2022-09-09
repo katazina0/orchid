@@ -19,7 +19,6 @@ namespace orchid::http
 {
     class Request
     {
-        Protocol::PROTOCOL protocol = Protocol::HTTP11;
         Method::METHOD method = Method::GET;
         URL url;
         Form form;
@@ -30,7 +29,40 @@ namespace orchid::http
     public:
         Request() = default;
 
-        Request(Socket& socket)
+        template <typename... T>
+        constexpr Request(Method::METHOD method, T&&... args)
+        {
+            this->method = method;
+            ([&] constexpr
+            {
+                if constexpr (std::is_same<T, Method::METHOD>::value)
+                {
+                    this->method = method;
+                }
+                else if constexpr (std::is_same<T, URL>::value)
+                {
+                    url = std::forward<URL>(args);
+                }
+                else if constexpr (std::is_same<T, Headers>::value)
+                {
+                    headers = std::forward<Headers>(args);
+                }
+                else if constexpr (std::is_same<T, Cookies>::value)
+                {
+                    cookies = std::forward<Cookies>(args);
+                }
+                else if constexpr (std::is_same<T, Body>::value)
+                {
+                    body = std::forward<Body>(args);
+                }
+                else
+                {
+                    static_assert("");
+                }
+            }(), ...);
+        }
+
+        explicit Request(Socket& socket)
         {
             method = Method::parse(socket.read_until(' '));
             socket.read(1);
@@ -46,7 +78,7 @@ namespace orchid::http
                 url = fullUrl;
             }
             socket.read(1);
-            protocol = Protocol::parse(socket.read_until('\r'));
+            socket.read_until('\r');
             socket.read(2);
 
             while (true)
@@ -84,12 +116,12 @@ namespace orchid::http
             }
         }
 
-        void setMime(Mime::MIME mime)
+        void setMime(const Mime& mime)
         {
             body.setMime(mime);
         }
 
-        Mime::MIME getMime()
+        const Mime& getMime()
         {
             return body.getMime();
         }
@@ -121,7 +153,7 @@ namespace orchid::http
             this->cookies = std::forward<Cookies>(cookies);
         }
 
-        Cookie getCookie(const std::string& key)
+        const Cookie& getCookie(const std::string& key)
         {
             return cookies.get(key);
         }
@@ -207,7 +239,7 @@ namespace orchid::http
             buffer.append(' ');
             buffer.append(url.endpoint);
             buffer.append(' ');
-            buffer.append(Protocol::string(protocol));
+            buffer.append(Protocol::string(Protocol::HTTP11));
             buffer.append('\r');
             buffer.append('\n');
             buffer.append(headers.serialize());

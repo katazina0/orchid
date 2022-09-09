@@ -80,7 +80,7 @@ namespace orchid::http
             return base.empty();
         }
 
-        Cookie get(const std::string& key)
+        const Cookie& get(const std::string& key)
         {
             for (uint64_t i = 0; i < base.size(); i++)
             {

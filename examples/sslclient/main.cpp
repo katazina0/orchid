@@ -4,11 +4,9 @@
 
 using namespace orchid;
 
-http::Client client;
-
 int main()
 {
-    http::Response response = client.GET
+    http::Response response = http::GET
     (
         http::URL("https://www.google.com/"),
         http::Headers

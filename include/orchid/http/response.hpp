@@ -20,7 +20,6 @@ namespace orchid::http
 {
     class Response
     {
-        Protocol::PROTOCOL protocol = Protocol::HTTP11;
         Status::STATUS status = Status::OK;
         Headers headers;
         Cookies cookies;
@@ -29,9 +28,37 @@ namespace orchid::http
     public:
         Response() = default;
 
+        template <typename... T>
+        constexpr Response(T&&... args)
+        {
+            ([&] constexpr
+            {
+                if constexpr (std::is_same<T, Status::STATUS>::value)
+                {
+                    status = args;
+                }
+                else if constexpr (std::is_same<T, Headers>::value)
+                {
+                    headers = std::forward<Headers>(args);
+                }
+                else if constexpr (std::is_same<T, Cookies>::value)
+                {
+                    cookies = std::forward<Cookies>(args);
+                }
+                else if constexpr (std::is_same<T, Body>::value)
+                {
+                    body = std::forward<Body>(args);
+                }
+                else
+                {
+                    static_assert("");
+                }
+            }(), ...);
+        }
+
         Response(Socket& socket)
         {
-            protocol = Protocol::parse(socket.read_until(' '));
+            socket.read_until(' ');
             socket.read(1);
             status = static_cast<Status::STATUS>(std::stoull(socket.read_until(' ')));
             socket.read(1);
@@ -160,12 +187,12 @@ namespace orchid::http
             return cookies.get(key);
         }
 
-        void setMime(Mime::MIME mime)
+        void setMime(const Mime& mime)
         {
             body.setMime(mime);
         }
 
-        Mime::MIME getMime()
+        const Mime& getMime()
         {
             return body.getMime();
         }
@@ -201,7 +228,7 @@ namespace orchid::http
             }
 
             Buffer buffer;
-            buffer.append(Protocol::string(protocol));
+            buffer.append(Protocol::string(Protocol::HTTP11));
             buffer.append(' ');
             buffer.append(std::to_string((int)status));
             buffer.append(' ');
