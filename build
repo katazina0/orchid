@@ -1,5 +1,0 @@
-#!/bin/bash
-cmake CMakeLists.txt -G Ninja -B.cmake/
-cd .cmake
-ninja
-cd ..
